@@ -74,5 +74,12 @@ namespace TenmoServer.Controllers
 
             return result;
         }
+
+        [HttpGet("{id}/balance")]
+        [Authorize]
+        public decimal Balance(int id)
+        {
+            return userDAO.GetUserBalance(id);   
+        }
     }
 }

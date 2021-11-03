@@ -99,5 +99,24 @@ namespace TenmoServer.DAO
                 Salt = Convert.ToString(reader["salt"]),
             };
         }
+
+        private decimal GetUserBalance(int id)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    SqlCommand cmd = new SqlCommand("SELECT balance FROM accounts WHERE user_id = @user_id", conn);
+                    cmd.Parameters.AddWithValue("@user_id", id);
+                    return Convert.ToDecimal(cmd.ExecuteScalar());
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine("Nope." + ex.Message);
+                return -1;
+            }
+        }
     }
 }

@@ -14,7 +14,7 @@ namespace TenmoClient
         {
             while (!quitRequested)
             {
-                while (!authService.IsLoggedIn)
+                while (!UserService.IsLoggedIn)
                 {
                     ShowLogInMenu();
                 }
@@ -75,7 +75,7 @@ namespace TenmoClient
                     switch (menuSelection)
                     {
                         case 1: // View Balance
-                            Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
+                            ViewBalance();
                             break;
 
                         case 2: // View Past Transfers
@@ -133,6 +133,16 @@ namespace TenmoClient
                 LoginUser loginUser = consoleService.PromptForLogin();
                 authService.Login(loginUser);
             }
+        }
+
+        private void ViewBalance()
+        {
+            Console.WriteLine();
+            Console.Write("Your current account balance is: ");
+            decimal balance = authService.
+
+
+            Console.WriteLine("Something here");
         }
     }
 }
