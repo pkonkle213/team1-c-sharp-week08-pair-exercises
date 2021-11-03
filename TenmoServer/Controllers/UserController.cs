@@ -8,7 +8,9 @@ using TenmoServer.DAO;
 
 namespace TenmoServer.Controllers
 {
-    public class NewController
+    [Route("[controller]")]
+    [ApiController]
+    public class UserController : ControllerBase
     {
         private readonly string connectionstring;
         private readonly NewDAO dao;

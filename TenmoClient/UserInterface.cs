@@ -139,7 +139,7 @@ namespace TenmoClient
         {
             Console.WriteLine();
             Console.Write("Your current account balance is: ");
-            decimal balance = authService.
+
 
 
             Console.WriteLine("Something here");
