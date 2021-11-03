@@ -1,4 +1,5 @@
 ﻿using System;
+using TenmoClient.APIClients;
 using TenmoClient.Data;
 
 namespace TenmoClient
@@ -7,6 +8,7 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
+        private readonly NewService newService = new NewService();
 
         private bool quitRequested = false;
 
@@ -138,9 +140,9 @@ namespace TenmoClient
         private void ViewBalance()
         {
             Console.WriteLine();
-            Console.Write("Your current account balance is: ");
+            Console.Write("Your current account balance is: " + newService.Balance(UserService.UserId));
 
-
+            
 
             Console.WriteLine("Something here");
         }

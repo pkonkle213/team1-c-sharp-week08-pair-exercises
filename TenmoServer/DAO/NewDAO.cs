@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TenmoServer.DAO
 {
-    public class NewDAO
+    public class NewDAO : INewDAO
     {
         private readonly string connectionString;
         
@@ -15,7 +15,7 @@ namespace TenmoServer.DAO
             connectionString = dbConnectionString;
         }
 
-        public decimal GetUserBalance(int id)
+        public decimal UserBalance(int id)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {

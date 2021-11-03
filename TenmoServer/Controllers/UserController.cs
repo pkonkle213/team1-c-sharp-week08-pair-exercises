@@ -12,14 +12,20 @@ namespace TenmoServer.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly string connectionstring;
-        private readonly NewDAO dao;
+        private readonly INewDAO dao;
 
-        [HttpGet("{id}/balance")]
-        [Authorize]
-        public decimal Balance(int id)
+        public UserController(INewDAO newDAO)
         {
-            return dao.GetUserBalance(id);
+            this.dao = newDAO;
+        }
+
+        [HttpGet("balance")]
+        [Authorize]
+        public decimal Balance()
+        {
+            int userId = int.Parse(this.User.FindFirst("sub").Value);
+
+            return dao.UserBalance(userId);
         }
     }
 }
