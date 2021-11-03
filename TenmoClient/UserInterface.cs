@@ -140,11 +140,7 @@ namespace TenmoClient
         private void ViewBalance()
         {
             Console.WriteLine();
-            Console.Write("Your current account balance is: " + newService.Balance(UserService.UserId));
-
-            
-
-            Console.WriteLine("Something here");
+            Console.Write("Your current account balance is: " + newService.Balance(UserService.Token));
         }
     }
 }
