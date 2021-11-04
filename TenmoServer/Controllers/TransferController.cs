@@ -20,6 +20,12 @@ namespace TenmoServer.Controllers
             this.dao = newDAO;
         }
 
-        //Need to finish this :)
+        [HttpPut]
+        [Authorize]
+        public void Transfer(int destinationId = 0, decimal amount = 0)
+        {
+            int userId = int.Parse(this.User.FindFirst("sub").Value);
+            dao.Transfer(userId, destinationId, amount);
+        }
     }
 }

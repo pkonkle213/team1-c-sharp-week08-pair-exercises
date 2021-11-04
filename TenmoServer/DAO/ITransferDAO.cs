@@ -7,6 +7,6 @@ namespace TenmoServer.DAO
 {
     public interface ITransferDAO
     {
-        bool TransferFunds(int userId, int destinationId, decimal transferAmount);
+        void Transfer(int userId, int destinationId, decimal transferAmount);
     }
 }

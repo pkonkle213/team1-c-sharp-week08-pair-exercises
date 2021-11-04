@@ -21,9 +21,10 @@ namespace TenmoClient.APIClients
             return response.Data;
         }
 
-        public List<User> AllUsers()
+        public List<User> AllUsers(string token)
         {
             RestRequest request = new RestRequest(API_BASE_URL + "user");
+            request.AddHeader("Authorization", "bearer " + token);
             IRestResponse<List<User>> response = client.Get<List<User>>(request);
             return response.Data;
         }

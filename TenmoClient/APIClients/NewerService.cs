@@ -12,14 +12,13 @@ namespace TenmoClient.APIClients
         private const string API_BASE_URL = "https://localhost:44315/";
         private readonly IRestClient client = new RestClient();
 
-        public bool TransferFunds(int destinationId, decimal amount, string token)
+        public void TransferFunds(int destinationId, decimal amount, string token)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + "user/transfers");
+            RestRequest request = new RestRequest(API_BASE_URL + $"transfer?destinationId={destinationId}&amount={amount}");
             request.AddHeader("Authorization", "bearer " + token);
-            
-            //Come back to this
-            
-            return false;
+            IRestResponse response = client.Put(request);
+
+            //Test to see how the response returned to give an error message
         }
     }
 }

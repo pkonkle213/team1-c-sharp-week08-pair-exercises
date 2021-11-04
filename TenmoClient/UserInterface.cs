@@ -155,12 +155,13 @@ namespace TenmoClient
             Console.WriteLine("------------------------------------");
 
             //Call some method to get a list users by ID and name (user model?)
-            List<User> users = newService.AllUsers();
-
+            List<User> users = newService.AllUsers(UserService.Token);
+            List<int> ids = new List<int>();
             //foreach loop to actually write information
             foreach (User user in users)
             {
                 Console.WriteLine($"{user.UserId} {user.Username}");
+                ids.Add(user.UserId);
             }
 
             Console.WriteLine("------------------------------------");
@@ -180,22 +181,31 @@ namespace TenmoClient
                     decimal amount = decimal.Parse(answerAmt);
 
                     //Need to check if amount is less than what is in their balance
-                    //Need to check if destination ID is valid
-                    //Neec to check if destination ID is 0 for cancel
-
-                    //Call to another method to transfer funds
-                    newNewerService.TransferFunds(destinationId, amount, UserService.Token);
-
-
-
+                    if (amount > newService.Balance(UserService.Token))
+                    {
+                        Console.WriteLine("You wish you had that much money. Please try again.");
+                    }
+                    else
+                    {
+                        //Need to check if destination ID is 0 for cancel
+                        if (destinationId == 0)
+                        {
+                            sweetness = true;
+                        }
+                        //Need to check if destination ID is valid
+                        else if (ids.Contains(destinationId))
+                        {
+                            //Call to another method to transfer funds
+                            newNewerService.TransferFunds(destinationId, amount, UserService.Token);
+                            sweetness = true;
+                        }
+                    }
                 }
                 catch (FormatException ex)
                 {
                     Console.WriteLine("How about you try putting in some valid data for once?");
                 }
             }
-
-
         }
     }
 }

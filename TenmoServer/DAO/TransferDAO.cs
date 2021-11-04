@@ -14,19 +14,32 @@ namespace TenmoServer.DAO
         {
             connectionString = dbConnectionString;
         }
-        public bool TransferFunds(int userId, int destinationId, decimal transferAmount)
+
+        public void Transfer(int userId, int destinationId, decimal transferAmount)
         {
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("INSERT INTO transfers (transfer_type_id,transfer_status_id,account_from,account_to,amount) VALUES(2, 2, @userId, @receiverId, @amountTransferred)", conn);
-                cmd.Parameters.AddWithValue("@userId", userId);
-                cmd.Parameters.AddWithValue("@receiverId", destinationId);
+
+                SqlCommand findAccountA = new SqlCommand("SELECT a.account_id FROM accounts a INNER JOIN users u ON a.user_id = u.user_id WHERE u.user_id = @userId", conn);
+                findAccountA.Parameters.AddWithValue("@userId", userId);
+                int accountSend = Convert.ToInt32(findAccountA.ExecuteScalar());
+
+                SqlCommand findAccountB = new SqlCommand("SELECT a.account_id FROM accounts a INNER JOIN users u ON a.user_id = u.user_id WHERE u.user_id = @recipient", conn);
+                findAccountB.Parameters.AddWithValue("@recipient", destinationId);
+                int accountRec = Convert.ToInt32(findAccountB.ExecuteScalar());
+
+                SqlCommand cmd = new SqlCommand("INSERT INTO transfers (transfer_type_id,transfer_status_id,account_from,account_to,amount) VALUES(1001, 2001, @userId, @receiverId, @amountTransferred)", conn);
+                cmd.Parameters.AddWithValue("@userId", accountSend);
+                cmd.Parameters.AddWithValue("@receiverId", accountRec);
                 cmd.Parameters.AddWithValue("@amountTransferred", transferAmount);
                 cmd.ExecuteNonQuery();
 
-                return true;
-                //Does this need to be bool or should it be void?
+                SqlCommand cmd2 = new SqlCommand("UPDATE accounts SET balance += @transferamount WHERE user_id = @recipientid; UPDATE accounts SET balance -= @transferamount WHERE user_id = @senderid", conn);
+                cmd2.Parameters.AddWithValue("@transferamount", transferAmount);
+                cmd2.Parameters.AddWithValue("@recipientid", destinationId);
+                cmd2.Parameters.AddWithValue("@senderid", userId);
+                cmd2.ExecuteNonQuery();
             }
         }
     }

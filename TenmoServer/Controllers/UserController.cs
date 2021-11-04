@@ -25,12 +25,11 @@ namespace TenmoServer.Controllers
         public decimal Balance()
         {
             int userId = int.Parse(this.User.FindFirst("sub").Value);
-
             return dao.UserBalance(userId);
         }
 
         [HttpGet]
-        [AllowAnonymous]
+        [Authorize]
         public List<User> AllUsers()
         {
             int userId = int.Parse(this.User.FindFirst("sub").Value);
