@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
+using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
@@ -41,6 +42,49 @@ namespace TenmoServer.DAO
                 cmd2.Parameters.AddWithValue("@senderid", userId);
                 cmd2.ExecuteNonQuery();
             }
+        }
+
+        public List<Transfer> AllTransfers(int userId)
+        {
+            List<Transfer> allTransfers = new List<Transfer>();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT t.transfer_id AS TransferID,a.user_id AS SenderID,u.username AS SenderName,b.user_id AS RecipientID,s.username AS ReceiverName,t.amount AS TransferAmount " +
+                    "FROM transfers t INNER JOIN accounts a ON a.account_id = t.account_from INNER JOIN accounts b ON b.account_id = t.account_to INNER JOIN users u ON u.user_id = a.user_id " +
+                    "INNER JOIN users s ON s.user_id = b.user_id WHERE a.user_id = @userId OR b.user_id = @userId", conn);
+
+                cmd.Parameters.AddWithValue("@userId", userId);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    Transfer transfer = BuildTransferFromReader(reader, userId);
+                    allTransfers.Add(transfer);
+                }
+            }
+            return allTransfers;
+        }
+
+        private Transfer BuildTransferFromReader(SqlDataReader reader, int userId)
+        {
+            Transfer transfer = new Transfer();
+            transfer.TransferId = Convert.ToInt32(reader["TransferID"]);
+            transfer.TransferAmount = Convert.ToDecimal(reader["TransferAmount"]);
+
+            int test = Convert.ToInt32(reader["SenderID"]);
+            if (test == userId)
+            {
+                transfer.Direction = "To: ";
+                transfer.Username = Convert.ToString(reader["ReceiverName"]);
+            }
+            else
+            {
+                transfer.Direction = "From: ";
+                transfer.Username = Convert.ToString(reader["SenderName"]);
+            }
+            return transfer;
         }
     }
 }

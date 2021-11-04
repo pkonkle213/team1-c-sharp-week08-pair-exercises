@@ -84,7 +84,7 @@ namespace TenmoClient
                             break;
 
                         case 2: // View Past Transfers
-                            Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
+                            ViewPastTransfers();
                             break;
 
                         case 3: // View Pending Requests
@@ -206,6 +206,23 @@ namespace TenmoClient
                     Console.WriteLine("How about you try putting in some valid data for once?");
                 }
             }
+        }
+
+        public void ViewPastTransfers()
+        {
+            Console.WriteLine();
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Transfers");
+            Console.WriteLine("ID       From/To              Amount");
+            Console.WriteLine("------------------------------------");
+
+            List<User> users = newService.AllUsers(UserService.Token);
+            List<int> ids = new List<int>();
+
+            // THE MIDDLE
+
+            Console.WriteLine();
+            Console.Write("Please enter transfer ID to view details (0 to cancel): ");
         }
     }
 }
