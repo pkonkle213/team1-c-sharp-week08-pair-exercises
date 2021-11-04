@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-    public interface INewDAO
+    public interface ITransferDAO
     {
-        decimal UserBalance(int id);
-        List<User> AllUsers(int id);
+        bool TransferFunds(int userId, int destinationId, decimal transferAmount);
     }
 }

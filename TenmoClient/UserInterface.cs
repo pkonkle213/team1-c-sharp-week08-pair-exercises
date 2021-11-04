@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using TenmoClient.APIClients;
 using TenmoClient.Data;
+using TenmoClient.Models;
 
 namespace TenmoClient
 {
@@ -8,7 +10,8 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-        private readonly NewService newService = new NewService();
+        private readonly ClientUserService newService = new ClientUserService();
+        private readonly NewerService newNewerService = new NewerService();
 
         private bool quitRequested = false;
 
@@ -89,7 +92,7 @@ namespace TenmoClient
                             break;
 
                         case 4: // Send TE Bucks
-                            Console.WriteLine("NOT IMPLEMENTED!"); // TODO: Implement me
+                            SendBucks();
                             break;
 
                         case 5: // Request TE Bucks
@@ -140,7 +143,59 @@ namespace TenmoClient
         private void ViewBalance()
         {
             Console.WriteLine();
-            Console.Write("Your current account balance is: " + newService.Balance(UserService.Token));
+            Console.WriteLine("Your current account balance is: " + newService.Balance(UserService.Token).ToString("C"));
+        }
+
+        private void SendBucks()
+        {
+            Console.WriteLine();
+            Console.WriteLine("------------------------------------");
+            Console.WriteLine("Users");
+            Console.WriteLine("ID       Name");
+            Console.WriteLine("------------------------------------");
+
+            //Call some method to get a list users by ID and name (user model?)
+            List<User> users = newService.AllUsers();
+
+            //foreach loop to actually write information
+            foreach (User user in users)
+            {
+                Console.WriteLine($"{user.UserId} {user.Username}");
+            }
+
+            Console.WriteLine("------------------------------------");
+
+            //start a while loop for accurate information entered by the user
+            bool sweetness = false;
+            while (!sweetness)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    Console.Write("Enter ID of user you are sending to (0 to cancel): ");
+                    string answerId = Console.ReadLine();
+                    Console.Write("Enter amount: ");
+                    string answerAmt = Console.ReadLine();
+                    int destinationId = int.Parse(answerId);
+                    decimal amount = decimal.Parse(answerAmt);
+
+                    //Need to check if amount is less than what is in their balance
+                    //Need to check if destination ID is valid
+                    //Neec to check if destination ID is 0 for cancel
+
+                    //Call to another method to transfer funds
+                    newNewerService.TransferFunds(destinationId, amount, UserService.Token);
+
+
+
+                }
+                catch (FormatException ex)
+                {
+                    Console.WriteLine("How about you try putting in some valid data for once?");
+                }
+            }
+
+
         }
     }
 }

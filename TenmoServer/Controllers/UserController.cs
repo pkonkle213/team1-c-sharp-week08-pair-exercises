@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TenmoServer.DAO;
+using TenmoServer.Models;
 
 namespace TenmoServer.Controllers
 {
@@ -26,6 +27,14 @@ namespace TenmoServer.Controllers
             int userId = int.Parse(this.User.FindFirst("sub").Value);
 
             return dao.UserBalance(userId);
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public List<User> AllUsers()
+        {
+            int userId = int.Parse(this.User.FindFirst("sub").Value);
+            return dao.AllUsers(userId);
         }
     }
 }
