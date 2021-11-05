@@ -14,10 +14,9 @@ namespace TenmoClient.APIClients
 
         public decimal Balance(string token)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + "user/balance");
+            RestRequest request = new RestRequest(API_BASE_URL + "money/balance");
             request.AddHeader("Authorization", "bearer " + token);
             IRestResponse<decimal> response = client.Get<decimal>(request);
-
             return response.Data;
         }
 

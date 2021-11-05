@@ -17,7 +17,7 @@ namespace TenmoClient.APIClients
             Transfer transfer = new Transfer();
             transfer.TransferAmount = amount;
             transfer.ReceiverId = destinationId;
-            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
+            RestRequest request = new RestRequest(API_BASE_URL + "money");
             request.AddHeader("Authorization", "bearer " + token);
             request.AddJsonBody(transfer);
             IRestResponse response = client.Put(request);
@@ -25,7 +25,7 @@ namespace TenmoClient.APIClients
 
         public List<Transfer> AllTransfers(string token)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
+            RestRequest request = new RestRequest(API_BASE_URL + "money");
             request.AddHeader("Authorization", "bearer " + token);
             IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
             return response.Data;
@@ -33,7 +33,7 @@ namespace TenmoClient.APIClients
 
         public Transfer SpecificTransfer(int transferId, string token)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + $"transfer/{transferId}");
+            RestRequest request = new RestRequest(API_BASE_URL + $"money/{transferId}");
             request.AddHeader("Authorization", "bearer " + token);
             IRestResponse<Transfer> response = client.Get<Transfer>(request);
             return response.Data;

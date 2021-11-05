@@ -7,11 +7,11 @@ using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-    public class TransferDAO : ITransferDAO
+    public class MoneyDAO : IMoneyDAO
     {
         private readonly string connectionString;
 
-        public TransferDAO(string dbConnectionString)
+        public MoneyDAO(string dbConnectionString)
         {
             connectionString = dbConnectionString;
         }
@@ -26,6 +26,19 @@ namespace TenmoServer.DAO
                 int accountRec = FindAccount(destinationId, conn);
                 ExecuteTransfer(transferAmount, conn, accountSend, accountRec);
                 UpdateBalances(userId, destinationId, transferAmount, conn);
+            }
+        }
+
+        public decimal UserBalance(int id)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("SELECT balance " +
+                    "FROM accounts " +
+                    "WHERE user_id = @user_id", conn);
+                cmd.Parameters.AddWithValue("@user_id", id);
+                return Convert.ToDecimal(cmd.ExecuteScalar());
             }
         }
 

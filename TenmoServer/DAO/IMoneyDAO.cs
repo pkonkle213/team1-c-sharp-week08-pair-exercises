@@ -7,12 +7,14 @@ using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-    public interface ITransferDAO
+    public interface IMoneyDAO
     {
         void Transfer(int userId, int destinationId, decimal transferAmount);
 
         List<Transfer> AllTransfers(int userId);
 
         Transfer SpecificTransfer(int transferId);
+
+        decimal UserBalance(int id);
     }
 }

@@ -16,19 +16,6 @@ namespace TenmoServer.DAO
             connectionString = dbConnectionString;
         }
 
-        public decimal UserBalance(int id)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT balance " +
-                    "FROM accounts " +
-                    "WHERE user_id = @user_id", conn);
-                cmd.Parameters.AddWithValue("@user_id", id);
-                return Convert.ToDecimal(cmd.ExecuteScalar());
-            }
-        }
-
         public List<User> AllUsers(int id)
         {
             List<User> users = new List<User>();

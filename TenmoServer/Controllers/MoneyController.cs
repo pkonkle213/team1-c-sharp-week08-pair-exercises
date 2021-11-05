@@ -11,13 +11,13 @@ namespace TenmoServer.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class TransferController : ControllerBase
+    public class MoneyController : ControllerBase
     {
-        private readonly ITransferDAO dao;
+        private readonly IMoneyDAO dao;
 
-        public TransferController(ITransferDAO transferDAO)
+        public MoneyController(IMoneyDAO moneyDAO)
         {
-            this.dao = transferDAO;
+            this.dao = moneyDAO;
         }
 
         [HttpPut]
@@ -25,10 +25,27 @@ namespace TenmoServer.Controllers
         public ActionResult Transfer(Transfer transfer)
         {
             int userId = int.Parse(this.User.FindFirst("sub").Value);
-            int destinationId = transfer.ReveiverId;
+            int destinationId = transfer.ReceiverId;
+            //Get the user's balance to compare against transfer amount
+            decimal balance = Balance();
             decimal amount = transfer.TransferAmount;
-            dao.Transfer(userId, destinationId, amount);
-            return Ok("Transfer complete!");
+            if (balance < amount)
+            {
+                return BadRequest("Insufficient funds.");
+            }
+            else
+            {
+                dao.Transfer(userId, destinationId, amount);
+                return Ok("Transfer complete!");
+            }
+        }
+
+        [HttpGet("balance")]
+        [Authorize]
+        public decimal Balance()
+        {
+            int userId = int.Parse(this.User.FindFirst("sub").Value);
+            return dao.UserBalance(userId);
         }
 
         [HttpGet]

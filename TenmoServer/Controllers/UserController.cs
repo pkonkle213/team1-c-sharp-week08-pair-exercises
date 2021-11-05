@@ -20,14 +20,6 @@ namespace TenmoServer.Controllers
             this.dao = newDAO;
         }
 
-        [HttpGet("balance")]
-        [Authorize]
-        public decimal Balance()
-        {
-            int userId = int.Parse(this.User.FindFirst("sub").Value);
-            return dao.UserBalance(userId);
-        }
-
         [HttpGet]
         [Authorize]
         public List<User> AllUsers()

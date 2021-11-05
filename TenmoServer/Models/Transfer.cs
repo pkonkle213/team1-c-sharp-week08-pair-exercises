@@ -9,7 +9,7 @@ namespace TenmoServer.Models
     {
         public int TransferId { get; set; }
 
-        public int ReveiverId { get; set; }
+        public int ReceiverId { get; set; }
 
         public string Direction { get; set; }
 
