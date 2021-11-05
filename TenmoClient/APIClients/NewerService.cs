@@ -20,5 +20,21 @@ namespace TenmoClient.APIClients
 
             //Test to see how the response returned to give an error message
         }
+
+        public List<Transfer> AllTransfers(string token)
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
+            request.AddHeader("Authorization", "bearer " + token);
+            IRestResponse<List<Transfer>> response = client.Get<List<Transfer>>(request);
+            return response.Data;
+        }
+
+        public Transfer SpecificTransfer(int transferId, string token)
+        {
+            RestRequest request = new RestRequest(API_BASE_URL + $"transfer/{transferId}");
+            request.AddHeader("Authorization", "bearer " + token);
+            IRestResponse<Transfer> response = client.Get<Transfer>(request);
+            return response.Data;
+        }
     }
 }

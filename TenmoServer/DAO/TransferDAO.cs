@@ -51,7 +51,7 @@ namespace TenmoServer.DAO
             {
                 conn.Open();
 
-                SqlCommand cmd = new SqlCommand("SELECT t.transfer_id AS TransferID,a.user_id AS SenderID,u.username AS SenderName,b.user_id AS RecipientID,s.username AS ReceiverName,t.amount AS TransferAmount " +
+                SqlCommand cmd = new SqlCommand("SELECT t.transfer_id AS TransferID,a.user_id AS SenderID,u.username AS SenderName,s.username AS ReceiverName,t.amount AS TransferAmount " +
                     "FROM transfers t INNER JOIN accounts a ON a.account_id = t.account_from INNER JOIN accounts b ON b.account_id = t.account_to INNER JOIN users u ON u.user_id = a.user_id " +
                     "INNER JOIN users s ON s.user_id = b.user_id WHERE a.user_id = @userId OR b.user_id = @userId", conn);
 
@@ -65,6 +65,46 @@ namespace TenmoServer.DAO
                 }
             }
             return allTransfers;
+        }
+
+        public Transfer SpecificTransfer(int transferId)
+        {
+            Transfer transfer = new Transfer();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT t.transfer_id AS TransferID,ts.transfer_status_desc AS TransferStatus,tt.transfer_type_desc AS TransferType,u.username AS SenderName,s.username AS ReceiverName,t.amount AS TransferAmount " +
+                    "FROM transfers t " +
+                    "INNER JOIN accounts a ON a.account_id = t.account_from " +
+                    "INNER JOIN accounts b ON b.account_id = t.account_to " +
+                    "INNER JOIN users u ON u.user_id = a.user_id " +
+                    "INNER JOIN users s ON s.user_id = b.user_id " +
+                    "INNER JOIN transfer_types tt ON tt.transfer_type_id = t.transfer_type_id " +
+                    "INNER JOIN transfer_statuses ts ON ts.transfer_status_id = t.transfer_status_id " +
+                    "WHERE t.transfer_id = @transferid", conn);
+
+                cmd.Parameters.AddWithValue("@transferid", transferId);
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    transfer = BuildOneTransferFromReader(reader);
+                }       
+            }
+
+            return transfer;
+        }
+
+        private Transfer BuildOneTransferFromReader(SqlDataReader reader)
+        {
+            Transfer transfer = new Transfer();
+            transfer.TransferId = Convert.ToInt32(reader["TransferID"]);
+            transfer.TransferAmount = Convert.ToDecimal(reader["TransferAmount"]);
+            transfer.SenderName = Convert.ToString(reader["SenderName"]);
+            transfer.TransferStatus = Convert.ToString(reader["TransferStatus"]);
+            transfer.TransferType = Convert.ToString(reader["TransferType"]);
+            transfer.ReceiverName = Convert.ToString(reader["ReceiverName"]);
+            return transfer;
         }
 
         private Transfer BuildTransferFromReader(SqlDataReader reader, int userId)

@@ -13,5 +13,9 @@ namespace TenmoClient.Models
         public string Username { get; set; }
 
         public decimal TransferAmount { get; set; }
+        public string TransferStatus { get; set; }
+        public string TransferType { get; set; }
+        public string SenderName { get; set; }
+        public string ReceiverName { get; set; }
     }
 }

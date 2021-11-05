@@ -27,5 +27,22 @@ namespace TenmoServer.Controllers
             int userId = int.Parse(this.User.FindFirst("sub").Value);
             dao.Transfer(userId, destinationId, amount);
         }
+
+        [HttpGet]
+        [Authorize]
+        public List<Transfer> AllTransfers()
+        {
+            int userId = int.Parse(this.User.FindFirst("sub").Value);
+            List<Transfer> result = dao.AllTransfers(userId);
+            return result;
+        }
+
+        [HttpGet("{id}")]
+        [Authorize]
+        public Transfer OneTransfer(int id)
+        {
+            Transfer transfer = dao.SpecificTransfer(id);
+            return transfer;
+        }
     }
 }

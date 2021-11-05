@@ -210,19 +210,65 @@ namespace TenmoClient
 
         public void ViewPastTransfers()
         {
+            int padFirst = 5;
+            int padSecond = 7;
+            int padThird = 15;
+
             Console.WriteLine();
             Console.WriteLine("------------------------------------");
             Console.WriteLine("Transfers");
-            Console.WriteLine("ID       From/To              Amount");
+            Console.WriteLine("ID     From/To              Amount");
             Console.WriteLine("------------------------------------");
 
-            List<User> users = newService.AllUsers(UserService.Token);
+            List<Transfer> transfers = newNewerService.AllTransfers(UserService.Token);
             List<int> ids = new List<int>();
 
             // THE MIDDLE
-
-            Console.WriteLine();
-            Console.Write("Please enter transfer ID to view details (0 to cancel): ");
+            foreach (Transfer transfer in transfers)
+            {
+                Console.Write(transfer.TransferId.ToString().PadRight(padFirst));
+                Console.Write(transfer.Direction.PadLeft(padSecond));
+                Console.Write(transfer.Username.ToString().PadRight(padThird));
+                Console.WriteLine(transfer.TransferAmount.ToString("C"));
+                ids.Add(transfer.TransferId);
+            }
+            Console.WriteLine("------------------------------------");
+            bool youMayPass = false;
+            while (!youMayPass)
+            {
+                try
+                {
+                    Console.WriteLine();
+                    Console.Write("Please enter transfer ID to view details (0 to cancel): ");
+                    string answerId = Console.ReadLine();
+                    int transferId = int.Parse(answerId);
+                    if (transferId == 0)
+                    {
+                        youMayPass = true;
+                    }
+                    //Need to check if destination ID is valid
+                    else if (ids.Contains(transferId))
+                    {
+                        //Call to another method to transfer funds
+                        Transfer transfer = newNewerService.SpecificTransfer(transferId, UserService.Token);
+                        Console.WriteLine("--------------------------------------------");
+                        Console.WriteLine("Transfer Details");
+                        Console.WriteLine("--------------------------------------------");
+                        Console.WriteLine($"Id: {transfer.TransferId}");
+                        Console.WriteLine($"From: {transfer.SenderName}");
+                        Console.WriteLine($"To: {transfer.ReceiverName}");
+                        Console.WriteLine($"Type: {transfer.TransferType}");
+                        Console.WriteLine($"Status: {transfer.TransferStatus}");
+                        Console.WriteLine($"Amount: {transfer.TransferAmount.ToString("C")}");
+                        Console.WriteLine();
+                        youMayPass = true;
+                    }
+                }
+                catch (FormatException ex)
+                {
+                    Console.WriteLine("Hey, buddy, read the instructions. A NUMBER.");
+                }
+            }
         }
     }
 }
