@@ -6,9 +6,10 @@ using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-    public interface INewDAO
+    public interface IUserInfoDAO
     {
         decimal UserBalance(int id);
+
         List<User> AllUsers(int id);
     }
 }

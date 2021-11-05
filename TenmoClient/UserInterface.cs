@@ -10,8 +10,8 @@ namespace TenmoClient
     {
         private readonly ConsoleService consoleService = new ConsoleService();
         private readonly AuthService authService = new AuthService();
-        private readonly ClientUserService newService = new ClientUserService();
-        private readonly NewerService newNewerService = new NewerService();
+        private readonly ClientUserService clientUserService = new ClientUserService();
+        private readonly TransferService transferService = new TransferService();
 
         private bool quitRequested = false;
 
@@ -143,7 +143,7 @@ namespace TenmoClient
         private void ViewBalance()
         {
             Console.WriteLine();
-            Console.WriteLine("Your current account balance is: " + newService.Balance(UserService.Token).ToString("C"));
+            Console.WriteLine("Your current account balance is: " + clientUserService.Balance(UserService.Token).ToString("C"));
         }
 
         private void SendBucks()
@@ -155,55 +155,64 @@ namespace TenmoClient
             Console.WriteLine("------------------------------------");
 
             //Call some method to get a list users by ID and name (user model?)
-            List<User> users = newService.AllUsers(UserService.Token);
+            List<User> users = clientUserService.AllUsers(UserService.Token);
             List<int> ids = new List<int>();
+
             //foreach loop to actually write information
             foreach (User user in users)
             {
-                Console.WriteLine($"{user.UserId} {user.Username}");
+                Console.WriteLine($"{user.UserId}     {user.Username}");
                 ids.Add(user.UserId);
             }
 
             Console.WriteLine("------------------------------------");
 
             //start a while loop for accurate information entered by the user
-            bool sweetness = false;
-            while (!sweetness)
+            bool quit = false;
+            while (!quit)
             {
                 try
                 {
                     Console.WriteLine();
                     Console.Write("Enter ID of user you are sending to (0 to cancel): ");
                     string answerId = Console.ReadLine();
-                    Console.Write("Enter amount: ");
-                    string answerAmt = Console.ReadLine();
                     int destinationId = int.Parse(answerId);
-                    decimal amount = decimal.Parse(answerAmt);
-
-                    //Need to check if amount is less than what is in their balance
-                    if (amount > newService.Balance(UserService.Token))
+                    //Need to check if destination ID is 0 for cancel
+                    if (destinationId == 0)
                     {
-                        Console.WriteLine("You wish you had that much money. Please try again.");
+                        quit = true;
+                    }
+                    else if (!ids.Contains(destinationId))
+                    {
+                        Console.WriteLine("User not found. Please enter a valid id.");
                     }
                     else
                     {
-                        //Need to check if destination ID is 0 for cancel
-                        if (destinationId == 0)
+                        Console.Write("Enter amount: ");
+                        string answerAmt = Console.ReadLine();
+                        decimal amount = decimal.Parse(answerAmt);
+
+                        //Need to check if amount is less than what is in their balance
+                        if (amount > clientUserService.Balance(UserService.Token))
                         {
-                            sweetness = true;
+                            Console.WriteLine("Insufficient funds. Please check your balance and enter new amount.");
                         }
-                        //Need to check if destination ID is valid
-                        else if (ids.Contains(destinationId))
+                        else if (amount <= 0)
+                        {
+                            Console.WriteLine("Please enter an amount greater than $0.");
+                        }
+                        else
                         {
                             //Call to another method to transfer funds
-                            newNewerService.TransferFunds(destinationId, amount, UserService.Token);
-                            sweetness = true;
+                            transferService.TransferFunds(destinationId, amount, UserService.Token);
+                            quit = true;
+                            Console.WriteLine("Transfer successful!!");
                         }
                     }
                 }
                 catch (FormatException ex)
                 {
-                    Console.WriteLine("How about you try putting in some valid data for once?");
+                    Console.WriteLine("Invalid input. Please try again.");
                 }
             }
         }
@@ -220,7 +229,7 @@ namespace TenmoClient
             Console.WriteLine("ID     From/To              Amount");
             Console.WriteLine("------------------------------------");
 
-            List<Transfer> transfers = newNewerService.AllTransfers(UserService.Token);
+            List<Transfer> transfers = transferService.AllTransfers(UserService.Token);
             List<int> ids = new List<int>();
 
             // THE MIDDLE
@@ -232,9 +241,10 @@ namespace TenmoClient
                 Console.WriteLine(transfer.TransferAmount.ToString("C"));
                 ids.Add(transfer.TransferId);
             }
+
             Console.WriteLine("------------------------------------");
-            bool youMayPass = false;
-            while (!youMayPass)
+            bool cancel = false;
+            while (!cancel)
             {
                 try
                 {
@@ -244,13 +254,13 @@ namespace TenmoClient
                     int transferId = int.Parse(answerId);
                     if (transferId == 0)
                     {
-                        youMayPass = true;
+                        cancel = true;
                     }
                     //Need to check if destination ID is valid
                     else if (ids.Contains(transferId))
                     {
                         //Call to another method to transfer funds
-                        Transfer transfer = newNewerService.SpecificTransfer(transferId, UserService.Token);
+                        Transfer transfer = transferService.SpecificTransfer(transferId, UserService.Token);
                         Console.WriteLine("--------------------------------------------");
                         Console.WriteLine("Transfer Details");
                         Console.WriteLine("--------------------------------------------");
@@ -260,13 +270,16 @@ namespace TenmoClient
                         Console.WriteLine($"Type: {transfer.TransferType}");
                         Console.WriteLine($"Status: {transfer.TransferStatus}");
                         Console.WriteLine($"Amount: {transfer.TransferAmount.ToString("C")}");
-                        Console.WriteLine();
-                        youMayPass = true;
+                        cancel = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Please enter a valid Transfer ID.");
                     }
                 }
                 catch (FormatException ex)
                 {
-                    Console.WriteLine("Hey, buddy, read the instructions. A NUMBER.");
+                    Console.WriteLine("Invalid input. Please try again.");
                 }
             }
         }

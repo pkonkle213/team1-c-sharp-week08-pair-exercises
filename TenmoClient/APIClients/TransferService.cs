@@ -7,18 +7,20 @@ using TenmoClient.Models;
 
 namespace TenmoClient.APIClients
 {
-    public class NewerService
+    public class TransferService
     {
         private const string API_BASE_URL = "https://localhost:44315/";
         private readonly IRestClient client = new RestClient();
 
         public void TransferFunds(int destinationId, decimal amount, string token)
         {
-            RestRequest request = new RestRequest(API_BASE_URL + $"transfer?destinationId={destinationId}&amount={amount}");
+            Transfer transfer = new Transfer();
+            transfer.TransferAmount = amount;
+            transfer.ReceiverId = destinationId;
+            RestRequest request = new RestRequest(API_BASE_URL + "transfer");
             request.AddHeader("Authorization", "bearer " + token);
+            request.AddJsonBody(transfer);
             IRestResponse response = client.Put(request);
-
-            //Test to see how the response returned to give an error message
         }
 
         public List<Transfer> AllTransfers(string token)

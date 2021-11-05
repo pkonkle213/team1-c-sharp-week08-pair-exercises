@@ -22,26 +22,46 @@ namespace TenmoServer.DAO
             {
                 conn.Open();
 
-                SqlCommand findAccountA = new SqlCommand("SELECT a.account_id FROM accounts a INNER JOIN users u ON a.user_id = u.user_id WHERE u.user_id = @userId", conn);
-                findAccountA.Parameters.AddWithValue("@userId", userId);
-                int accountSend = Convert.ToInt32(findAccountA.ExecuteScalar());
-
-                SqlCommand findAccountB = new SqlCommand("SELECT a.account_id FROM accounts a INNER JOIN users u ON a.user_id = u.user_id WHERE u.user_id = @recipient", conn);
-                findAccountB.Parameters.AddWithValue("@recipient", destinationId);
-                int accountRec = Convert.ToInt32(findAccountB.ExecuteScalar());
-
-                SqlCommand cmd = new SqlCommand("INSERT INTO transfers (transfer_type_id,transfer_status_id,account_from,account_to,amount) VALUES(1001, 2001, @userId, @receiverId, @amountTransferred)", conn);
-                cmd.Parameters.AddWithValue("@userId", accountSend);
-                cmd.Parameters.AddWithValue("@receiverId", accountRec);
-                cmd.Parameters.AddWithValue("@amountTransferred", transferAmount);
-                cmd.ExecuteNonQuery();
-
-                SqlCommand cmd2 = new SqlCommand("UPDATE accounts SET balance += @transferamount WHERE user_id = @recipientid; UPDATE accounts SET balance -= @transferamount WHERE user_id = @senderid", conn);
-                cmd2.Parameters.AddWithValue("@transferamount", transferAmount);
-                cmd2.Parameters.AddWithValue("@recipientid", destinationId);
-                cmd2.Parameters.AddWithValue("@senderid", userId);
-                cmd2.ExecuteNonQuery();
+                int accountSend = FindAccount(userId, conn);
+                int accountRec = FindAccount(destinationId, conn);
+                ExecuteTransfer(transferAmount, conn, accountSend, accountRec);
+                UpdateBalances(userId, destinationId, transferAmount, conn);
             }
+        }
+
+        private static int FindAccount(int userId, SqlConnection conn)
+        {
+            SqlCommand findAccount = new SqlCommand("SELECT a.account_id, a.balance " +
+                "FROM accounts a " +
+                "INNER JOIN users u ON a.user_id = u.user_id " +
+                "WHERE u.user_id = @userId", conn);
+            findAccount.Parameters.AddWithValue("@userId", userId);
+            int account = Convert.ToInt32(findAccount.ExecuteScalar());
+            return account;
+        }
+        
+        private static void ExecuteTransfer(decimal transferAmount, SqlConnection conn, int accountSend, int accountRec)
+        {
+            SqlCommand cmd = new SqlCommand("INSERT INTO transfers (transfer_type_id,transfer_status_id,account_from,account_to,amount) " +
+                "VALUES(1001, 2001, @userId, @receiverId, @amountTransferred)", conn);
+            cmd.Parameters.AddWithValue("@userId", accountSend);
+            cmd.Parameters.AddWithValue("@receiverId", accountRec);
+            cmd.Parameters.AddWithValue("@amountTransferred", transferAmount);
+            cmd.ExecuteNonQuery();
+        }
+
+        private static void UpdateBalances(int userId, int destinationId, decimal transferAmount, SqlConnection conn)
+        {
+            SqlCommand cmd2 = new SqlCommand("UPDATE accounts " +
+                "SET balance += @transferamount " +
+                "WHERE user_id = @recipientid; " +
+                "UPDATE accounts " +
+                "SET balance -= @transferamount " +
+                "WHERE user_id = @senderid", conn);
+            cmd2.Parameters.AddWithValue("@transferamount", transferAmount);
+            cmd2.Parameters.AddWithValue("@recipientid", destinationId);
+            cmd2.Parameters.AddWithValue("@senderid", userId);
+            cmd2.ExecuteNonQuery();
         }
 
         public List<Transfer> AllTransfers(int userId)
@@ -52,8 +72,12 @@ namespace TenmoServer.DAO
                 conn.Open();
 
                 SqlCommand cmd = new SqlCommand("SELECT t.transfer_id AS TransferID,a.user_id AS SenderID,u.username AS SenderName,s.username AS ReceiverName,t.amount AS TransferAmount " +
-                    "FROM transfers t INNER JOIN accounts a ON a.account_id = t.account_from INNER JOIN accounts b ON b.account_id = t.account_to INNER JOIN users u ON u.user_id = a.user_id " +
-                    "INNER JOIN users s ON s.user_id = b.user_id WHERE a.user_id = @userId OR b.user_id = @userId", conn);
+                    "FROM transfers t " +
+                    "INNER JOIN accounts a ON a.account_id = t.account_from " +
+                    "INNER JOIN accounts b ON b.account_id = t.account_to " +
+                    "INNER JOIN users u ON u.user_id = a.user_id " +
+                    "INNER JOIN users s ON s.user_id = b.user_id " +
+                    "WHERE a.user_id = @userId OR b.user_id = @userId", conn);
 
                 cmd.Parameters.AddWithValue("@userId", userId);
                 SqlDataReader reader = cmd.ExecuteReader();

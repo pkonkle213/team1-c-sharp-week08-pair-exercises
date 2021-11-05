@@ -15,17 +15,20 @@ namespace TenmoServer.Controllers
     {
         private readonly ITransferDAO dao;
 
-        public TransferController(ITransferDAO newDAO)
+        public TransferController(ITransferDAO transferDAO)
         {
-            this.dao = newDAO;
+            this.dao = transferDAO;
         }
 
         [HttpPut]
         [Authorize]
-        public void Transfer(int destinationId = 0, decimal amount = 0)
+        public ActionResult Transfer(Transfer transfer)
         {
             int userId = int.Parse(this.User.FindFirst("sub").Value);
+            int destinationId = transfer.ReveiverId;
+            decimal amount = transfer.TransferAmount;
             dao.Transfer(userId, destinationId, amount);
+            return Ok("Transfer complete!");
         }
 
         [HttpGet]

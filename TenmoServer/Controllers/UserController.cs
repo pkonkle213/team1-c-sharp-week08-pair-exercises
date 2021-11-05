@@ -13,9 +13,9 @@ namespace TenmoServer.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly INewDAO dao;
+        private readonly IUserInfoDAO dao;
 
-        public UserController(INewDAO newDAO)
+        public UserController(IUserInfoDAO newDAO)
         {
             this.dao = newDAO;
         }

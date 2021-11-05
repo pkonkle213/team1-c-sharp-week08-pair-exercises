@@ -7,11 +7,11 @@ using TenmoServer.Models;
 
 namespace TenmoServer.DAO
 {
-    public class NewDAO : INewDAO
+    public class UserInfoDAO : IUserInfoDAO
     {
         private readonly string connectionString;
 
-        public NewDAO(string dbConnectionString)
+        public UserInfoDAO(string dbConnectionString)
         {
             connectionString = dbConnectionString;
         }
@@ -21,7 +21,9 @@ namespace TenmoServer.DAO
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT balance FROM accounts WHERE user_id = @user_id", conn);
+                SqlCommand cmd = new SqlCommand("SELECT balance " +
+                    "FROM accounts " +
+                    "WHERE user_id = @user_id", conn);
                 cmd.Parameters.AddWithValue("@user_id", id);
                 return Convert.ToDecimal(cmd.ExecuteScalar());
             }
@@ -34,7 +36,9 @@ namespace TenmoServer.DAO
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
-                SqlCommand cmd = new SqlCommand("SELECT user_id, username FROM users WHERE user_id != @user_id", conn);
+                SqlCommand cmd = new SqlCommand("SELECT user_id, username " +
+                    "FROM users " +
+                    "WHERE user_id != @user_id", conn);
                 cmd.Parameters.AddWithValue("@user_id", id);
 
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -44,7 +48,6 @@ namespace TenmoServer.DAO
                     User user = BuildUserFromReader(reader);
                     users.Add(user);
                 }
-
             }
             return users;
         }
