@@ -26,6 +26,10 @@ namespace TenmoServer.Controllers
         {
             int userId = int.Parse(this.User.FindFirst("sub").Value);
             int destinationId = transfer.ReceiverId;
+            if (userId == destinationId)
+            {
+                return BadRequest("Please select a different user.");
+            }
             //Get the user's balance to compare against transfer amount
             decimal balance = Balance();
             decimal amount = transfer.TransferAmount;
